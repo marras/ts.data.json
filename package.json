@@ -1,6 +1,6 @@
 {
   "name": "ts.data.jsondecode",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A JSON decoding library for Typescript",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
