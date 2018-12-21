@@ -1,7 +1,7 @@
 # JsonDecoder
 
-[![Build Status](https://travis-ci.org/joanllenas/ts.data.jsondecode.svg?branch=master)](https://travis-ci.org/joanllenas/ts.data.jsondecode)
-[![npm version](https://badge.fury.io/js/ts.data.jsondecode.svg)](https://badge.fury.io/js/ts.data.jsondecode)
+[![Build Status](https://travis-ci.org/joanllenas/ts.data.json.svg?branch=master)](https://travis-ci.org/joanllenas/ts.data.json)
+[![npm version](https://badge.fury.io/js/ts.data.json.svg)](https://badge.fury.io/js/ts.data.json)
 
 Typescript type annotations give us compile-time guarantees, but at run-time, when data flows from the server to our clients, lots of things can go wrong.
 
@@ -10,7 +10,7 @@ JSON decoders validate the JSON before it comes into our program. So if the data
 ## Install
 
 ```
-npm install ts.data.jsondecode --save
+npm install ts.data.json --save
 ```
 
 ## Example

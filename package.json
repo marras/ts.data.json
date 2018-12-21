@@ -1,5 +1,5 @@
 {
-  "name": "ts.data.jsondecode",
+  "name": "ts.data.json",
   "version": "0.0.3",
   "description": "A JSON decoding library for Typescript",
   "main": "dist/index.js",
@@ -27,12 +27,12 @@
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
-    "url": "https://github.com/joanllenas/ts.data.jsondecode"
+    "url": "https://github.com/joanllenas/ts.data.json"
   },
   "bugs": {
-    "url": "https://github.com/joanllenas/ts.data.jsondecode/issues"
+    "url": "https://github.com/joanllenas/ts.data.json/issues"
   },
-  "homepage": "https://github.com/joanllenas/ts.data.jsondecode#readme",
+  "homepage": "https://github.com/joanllenas/ts.data.json#readme",
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
