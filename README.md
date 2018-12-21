@@ -1,100 +1,89 @@
-# JsonDecoder for Typescript 
+# JsonDecoder
 
-ts version 2.2.1
+[![Build Status](https://travis-ci.org/joanllenas/ts.json.decode.svg?branch=master)](https://travis-ci.org/joanllenas/ts.json.decode)
+[![npm version](https://badge.fury.io/js/ts.json.decode.svg)](https://badge.fury.io/js/ts.json.decode)
 
-#### running the examples
+Typescript type annotations give us compile-time guarantees, but at run-time, when data flows from the server to our clients, lots of things can go wrong.
 
-    cd src
-    npm install
-    tsc main.ts
-    node main.js
+JSON decoders validate the JSON before it comes into our program. So if the data has an unexpected structure, we learn about it immediately.
 
+## Install
 
-#### Example
+```
+npm install ts.json.decode --save
+```
 
-    import * as Json from "./JsonDecoder";
+## Example
 
-    type SomeDataType = {
-        id: string,
-        name: {
-            firstname: string,
-            lastname: string
-        },
-        hobbies: Array<string>,
-        numbersAndStrings: Array<number|string>,
-        optionalBoolean?: boolean
-    };
+```ts
+type User = {
+  firstname: string;
+  lastname: string;
+};
 
-    const decodeSomeDataType = Json.object<SomeDataType>({
-        id: Json.string,
-        name: Json.object({
-            firstname: Json.string,
-            lastname: Json.string
-        }),
-        hobbies: Json.array(Json.string),
-        numbersAndStrings: Json.array(Json.oneOf<number|string>([Json.number, Json.string])),
-        optionalBoolean: Json.maybe(undefined, Json.boolean)
-    });
+const userDecoder = JsonDecoder.object<User>(
+  {
+    firstname: JsonDecoder.string,
+    lastname: JsonDecoder.string
+  },
+  'User'
+);
 
-    console.log(decodeSomeDataType.run({
-        id: "xy-12342",
-        name: {
-            firstname: "John",
-            lastname: "Doe"
-        },
-        hobbies: [
-            "Tennis",
-            "Sleeping"
-        ],
-        numbersAndStrings: [
-            1, 
-            2,
-            "foo",
-            3,
-            "bar"
-        ]
-    }));
+const jsonObjectOk = {
+  firstname: 'Damien',
+  lastname: 'Jurado'
+};
 
+userDecoder
+  .decodePromise(jsonObjectOk)
+  .then(user => {
+    console.log(`User ${user.firstname} ${user.lastname} decoded successfully`);
+  })
+  .catch(error => {
+    console.log(error);
+  });
 
-#### Combinators
+// Output: User Damien Jurado decoded successfully
 
-    string : Decoder<string>
-    
-    number : Decoder<number>
-    
-    boolean : Decoder<boolean>
-    
-    maybe: <a>(defaultValue: a, decoder: Decoder<a>): Decoder<a>
-    
-    nullable: <a>(decoder: Decoder<a>): Decoder<null|a>
-    
-    isnull: <a>(defaultValue:a): Decoder<a>
-    
-    isundefined: <a>(defaultValue:a): Decoder<a>
+const jsonObjectKo = {
+  firstname: 'Erik',
+  lastname: null
+};
 
-    isexactly: <a>(value:a): Decoder<a>
-    
-    array: (decoder: Decoder<a>): Decoder<Array<a>>
-    
-    keyValues: <a>(decoder: Decoder<a>): Decoder<{[name:string]: a}>
-    
-    oneOf: (decoders: Array<Decoder<a>>): Decoder<a>
-    
-    constant: <a>(value:a): Decoder<a>
-    
-    lazy: <a>(mkDecoder: () => Decoder<a>): Decoder<a>
-    
-    object: <a>(decoders: DecoderObject<a>): Decoder<a>
+userDecoder
+  .decodePromise(jsonObjectKo)
+  .then(user => {
+    console.log('User decoded successfully');
+  })
+  .catch(error => {
+    console.error(error);
+  });
 
-    type DecoderObject<a> = {[t in keyof a]: Decoder<a[t]>}
-    
-    decoder.map(f)
-    
-    decoder.then(f)
-    
-    decoder.run(json)
-    
-    decoder.runThen(json, onOk, onErr)
+// Output: <User> decoder failed at key "lastname" with error: null is not a valid string
+```
 
-    decoder.runPromise(json) : Promise<a>
-    
+## Api
+
+### JsonDecoder.string
+
+`string: Decoder<string>`
+
+Creates a `string` decoder.
+
+```ts
+JsonDecoder.string.decode('hi'); // Ok<string>({value: 'hi'})
+JsonDecoder.string.decode(5); // Err({error: '5 is not a valid string'})
+```
+
+### JsonDecoder.number
+
+`number: Decoder<number>`
+
+Creates a `number` decoder.
+
+```ts
+JsonDecoder.number.decode(99); // Ok<number>({value: 99})
+JsonDecoder.string.decode('hola'); // Err({error: 'hola is not a valid number'})
+```
+
+_(Docs are WIP)_
