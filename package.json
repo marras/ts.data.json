@@ -1,12 +1,13 @@
 {
-  "name": "ts.json.decode",
+  "name": "ts.data.jsondecode",
   "version": "1.0.0",
   "description": "A JSON decoding library for Typescript",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "mocha --reporter spec --compilers ts:ts-node/register 'src/**/*.spec.ts'"
+    "test": "mocha --reporter spec --compilers ts:ts-node/register 'src/**/*.spec.ts'",
+    "release": "tsc && standard-version"
   },
   "keywords": [
     "json",
@@ -25,18 +26,19 @@
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
-    "url": "https://github.com/joanllenas/ts.json.decode"
+    "url": "https://github.com/joanllenas/ts.data.jsondecode"
   },
   "bugs": {
-    "url": "https://github.com/joanllenas/ts.json.decode/issues"
+    "url": "https://github.com/joanllenas/ts.data.jsondecode/issues"
   },
-  "homepage": "https://github.com/joanllenas/ts.json.decode#readme",
+  "homepage": "https://github.com/joanllenas/ts.data.jsondecode#readme",
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
     "prettier": "^1.15.3",
+    "standard-version": "^4.4.0",
     "ts-node": "^7.0.1",
     "typescript": "^3.2.2"
   }
