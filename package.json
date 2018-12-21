@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc",
     "test": "mocha --reporter spec --compilers ts:ts-node/register 'src/**/*.spec.ts'",
-    "release": "tsc && standard-version"
+    "release": "tsc && standard-version",
+    "pub": "tsc && npm publish"
   },
   "keywords": [
     "json",
