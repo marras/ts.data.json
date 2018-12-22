@@ -137,13 +137,15 @@ const jsonOk = {
   firstname: 'Damien',
   lastname: 'Jurado'
 };
-userDecoder.decode(jsonOk); // Ok<User>({value: {firstname: 'Damien', lastname: 'Jurado'}})
+userDecoder.decode(jsonOk);
+// Output: Ok<User>({value: {firstname: 'Damien', lastname: 'Jurado'}})
 
 const jsonKo = {
   firstname: null,
   lastname: 'Satie'
 };
-userDecoder.decode(jsonKo); // Err({error: '<User> decoder failed at key "firstname" with error: null is not a valid string'})
+userDecoder.decode(jsonKo);
+// Output: Err({error: '<User> decoder failed at key "firstname" with error: null is not a valid string'})
 ```
 
 #### keyMap example
@@ -165,12 +167,14 @@ const jsonOk = {
   fName: 'Nick',
   lName: 'Drake'
 };
-userDecoder.decode(json); // Ok({value: {firstname: 'Nick', lastname: 'Drake'}})
+userDecoder.decode(json);
+// Output: Ok({value: {firstname: 'Nick', lastname: 'Drake'}})
 
 const jsonKo = {
   fName: 'Nick'
 };
-userDecoder.decode(json); // Err({error: '<User> decoder failed at key "lastname" (mapped from the JSON key "lName") with error: undefined is not a valid string'})
+userDecoder.decode(json);
+// Output: Err({error: '<User> decoder failed at key "lastname" (mapped from the JSON key "lName") with error: undefined is not a valid string'})
 ```
 
 ### JsonDecoder.array
@@ -189,8 +193,10 @@ The type of the object we are decoding. i.e. `User[]`.
 This is used to generate meaningful decoding error messages.
 
 ```ts
-JsonDecoder.array<number>(JsonDecoder.number, 'number[]').decode([1, 2, 3]); // Ok<number[]>({value: [1, 2, 3]})
-JsonDecoder.array<number>(JsonDecoder.number, 'number[]').decode([1, '2', 3]); // Err({error: '<number[]> decoder failed at index 1 with error: "2" is not a valid number'})
+JsonDecoder.array<number>(JsonDecoder.number, 'number[]').decode([1, 2, 3]);
+// Output: Ok<number[]>({value: [1, 2, 3]})
+JsonDecoder.array<number>(JsonDecoder.number, 'number[]').decode([1, '2', 3]);
+// Output: Err({error: '<number[]> decoder failed at index 1 with error: "2" is not a valid number'})
 ```
 
 _(Docs are a WIP)_
