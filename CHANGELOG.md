@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.0.6"></a>
+## [0.0.6](https://github.com/joanllenas/ts.data.json/compare/v0.0.5...v0.0.6) (2018-12-22)
+
+
+### Bug Fixes
+
+* **JsonDecoder.any:** Renamed to succeedfor consistency ([414b87a](https://github.com/joanllenas/ts.data.json/commit/414b87a))
+
+
+
 <a name="0.0.5"></a>
 ## [0.0.5](https://github.com/joanllenas/ts.data.json/compare/v0.0.4...v0.0.5) (2018-12-22)
 
