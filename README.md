@@ -106,12 +106,12 @@ Creates an `object` decoder.
 
 #### @param `decoders: DecoderObject<a>`
 
-The `decoders: DecoderObject<a>` parameter is a key/value pair that has to comply with the `<a>` type.
+Key/value pair that has to comply with the `<a>` type.
 
 #### @param `decoderName: string`
 
 The type of the object we are decoding. i.e. `User`.
-This is used to generate meaningful decoding errors.
+This is used to generate meaningful decoding error messages.
 
 #### @param `keyMap?: DecoderObjectKeyMap<a>`
 
@@ -132,11 +132,18 @@ const userDecoder = JsonDecoder.object<User>(
   },
   'User'
 );
-const json = {
+
+const jsonOk = {
   firstname: 'Damien',
   lastname: 'Jurado'
 };
-userDecoder.decode(json); // Ok({firstname: 'Damien', lastname: 'Jurado'})
+userDecoder.decode(jsonOk); // Ok<User>({value: {firstname: 'Damien', lastname: 'Jurado'}})
+
+const jsonKo = {
+  firstname: null,
+  lastname: 'Satie'
+};
+userDecoder.decode(jsonKo); // Err({error: '<User> decoder failed at key "firstname" with error: null is not a valid string'})
 ```
 
 #### keyMap example
@@ -153,9 +160,37 @@ const userDecoder = JsonDecoder.object<User>(
     lastname: 'lName'
   }
 );
-const json = {
+
+const jsonOk = {
   fName: 'Nick',
   lName: 'Drake'
 };
-userDecoder.decode(json); // Ok({firstname: 'Nick', lastname: 'Drake'})
+userDecoder.decode(json); // Ok({value: {firstname: 'Nick', lastname: 'Drake'}})
+
+const jsonKo = {
+  fName: 'Nick'
+};
+userDecoder.decode(json); // Err({error: '<User> decoder failed at key "lastname" (mapped from the JSON key "lName") with error: undefined is not a valid string'})
 ```
+
+### JsonDecoder.array
+
+> `array<a>(decoder: Decoder<a>, decoderName: string): Decoder<Array<a>>`
+
+Creates an `array` decoder.
+
+#### @param `decoder: DecoderObject<a>`
+
+The decoder used to decode every `Array<a>` item.
+
+#### @param `decoderName: string`
+
+The type of the object we are decoding. i.e. `User[]`.
+This is used to generate meaningful decoding error messages.
+
+```ts
+JsonDecoder.array<number>(JsonDecoder.number, 'number[]').decode([1, 2, 3]); // Ok<number[]>({value: [1, 2, 3]})
+JsonDecoder.array<number>(JsonDecoder.number, 'number[]').decode([1, '2', 3]); // Err({error: '<number[]> decoder failed at index 1 with error: "2" is not a valid number'})
+```
+
+_(Docs are a WIP)_

@@ -409,7 +409,11 @@ describe('json-decoder', () => {
   describe('array', () => {
     it('should decode a filled array', () => {
       expectOkWithValue(
-        JsonDecoder.array<number>(JsonDecoder.number).decode([1, 2, 3]),
+        JsonDecoder.array<number>(JsonDecoder.number, 'number[]').decode([
+          1,
+          2,
+          3
+        ]),
         [1, 2, 3]
       );
     });
@@ -438,29 +442,52 @@ describe('json-decoder', () => {
       ];
 
       expectOkWithValue(
-        JsonDecoder.array<User>(userDecoder).decode(users),
+        JsonDecoder.array<User>(userDecoder, 'User[]').decode(users),
         users.slice()
       );
     });
     it('should decode an empty array', () => {
       expectOkWithValue(
-        JsonDecoder.array<number>(JsonDecoder.number).decode([]),
+        JsonDecoder.array<number>(JsonDecoder.number, 'number[]').decode([]),
         []
       );
     });
     it('should fail to decode something other than an array', () => {
       expectErrWithMsg(
-        JsonDecoder.array<number>(JsonDecoder.number).decode('hola'),
+        JsonDecoder.array<number>(JsonDecoder.number, 'number[]').decode(
+          'hola'
+        ),
         $JsonDecoderErrors.primitiveError('hola', 'array')
       );
     });
     it('should fail to decode null or undefined', () => {
       expectErrWithMsg(
-        JsonDecoder.array<number>(JsonDecoder.number).decode(null),
+        JsonDecoder.array<number>(JsonDecoder.number, 'number[]').decode(null),
         $JsonDecoderErrors.primitiveError(null, 'array')
       );
       expectErrWithMsg(
-        JsonDecoder.array<number>(JsonDecoder.number).decode(undefined),
+        JsonDecoder.array<number>(JsonDecoder.number, 'number[]').decode(
+          undefined
+        ),
+        $JsonDecoderErrors.primitiveError(undefined, 'array')
+      );
+    });
+    it('should fail to decode a mixed array', () => {
+      expectErrWithMsg(
+        JsonDecoder.array<number>(JsonDecoder.number, 'number[]').decode([
+          1,
+          '2'
+        ]),
+        $JsonDecoderErrors.arrayError(
+          'number[]',
+          1,
+          $JsonDecoderErrors.primitiveError('2', 'number')
+        )
+      );
+      expectErrWithMsg(
+        JsonDecoder.array<number>(JsonDecoder.number, 'number[]').decode(
+          undefined
+        ),
         $JsonDecoderErrors.primitiveError(undefined, 'array')
       );
     });
@@ -478,7 +505,7 @@ describe('json-decoder', () => {
       {
         value: JsonDecoder.string,
         children: JsonDecoder.oneOf<Node<string>[]>([
-          JsonDecoder.lazy(() => JsonDecoder.array(treeDecoder)),
+          JsonDecoder.lazy(() => JsonDecoder.array(treeDecoder, 'Node<a>[]')),
           JsonDecoder.isUndefined([])
         ])
       },
@@ -738,7 +765,7 @@ describe('json-decoder', () => {
           },
           'Tracking'
         ),
-        addons: JsonDecoder.array(JsonDecoder.string)
+        addons: JsonDecoder.array(JsonDecoder.string, 'string[]')
       },
       'Session'
     );

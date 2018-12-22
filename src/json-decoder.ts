@@ -266,7 +266,10 @@ export namespace JsonDecoder {
    *
    * @param decoder The decoder for the array element.
    */
-  export const array = <a>(decoder: Decoder<a>): Decoder<Array<a>> => {
+  export const array = <a>(
+    decoder: Decoder<a>,
+    decoderName: string
+  ): Decoder<Array<a>> => {
     return new Decoder<Array<a>>(json => {
       if (json instanceof Array) {
         const arr: Array<a> = [];
@@ -275,7 +278,9 @@ export namespace JsonDecoder {
           if (result instanceof Ok) {
             arr.push(result.value);
           } else {
-            return err<Array<a>>(result.error);
+            return err<Array<a>>(
+              $JsonDecoderErrors.arrayError(decoderName, i, result.error)
+            );
           }
         }
         return ok<Array<a>>(arr);
@@ -370,6 +375,13 @@ export namespace $JsonDecoderErrors {
     error: string
   ): string =>
     `<${decoderName}> decoder failed at key "${key}" with error: ${error}`;
+
+  export const arrayError = (
+    decoderName: string,
+    index: number,
+    error: string
+  ): string =>
+    `<${decoderName}> decoder failed at index "${index}" with error: ${error}`;
 
   export const objectJsonKeyError = (
     decoderName: string,
