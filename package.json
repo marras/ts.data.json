@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "test": "mocha --reporter spec --compilers ts:ts-node/register 'src/**/*.spec.ts'",
-    "release": "tsc && standard-version",
+    "release": "npm run build && npm run test && standard-version",
     "pub": "git push --follow-tags origin master && tsc && npm publish"
   },
   "keywords": [
