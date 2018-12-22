@@ -116,15 +116,15 @@ describe('json-decoder', () => {
     });
   });
 
-  // any
-  describe('any', () => {
+  // succeed
+  describe('succeed', () => {
     it('should accept any value', () => {
       type SomeData = {
         name: string;
         meta: any;
       };
       const someDataDecoder = JsonDecoder.object<SomeData>(
-        { name: JsonDecoder.string, meta: JsonDecoder.any },
+        { name: JsonDecoder.string, meta: JsonDecoder.succeed },
         'SomeData'
       );
       const data = {
@@ -870,7 +870,7 @@ describe('json-decoder', () => {
       >(
         {
           type: JsonDecoder.string,
-          properties: JsonDecoder.any
+          properties: JsonDecoder.succeed
         },
         'Shape'
       ).then(value => {

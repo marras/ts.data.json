@@ -175,9 +175,9 @@ export namespace JsonDecoder {
   }
 
   /**
-   * Bypass to avoid decoding entirely
+   * Always succeeding decoder
    */
-  export const any: Decoder<any> = new Decoder<any>((json: any) => {
+  export const succeed: Decoder<any> = new Decoder<any>((json: any) => {
     return ok<any>(json);
   });
 
