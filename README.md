@@ -67,7 +67,7 @@ userDecoder
 
 ### JsonDecoder.string
 
-`string: Decoder<string>`
+> `string: Decoder<string>`
 
 Creates a `string` decoder.
 
@@ -78,7 +78,7 @@ JsonDecoder.string.decode(5); // Err({error: '5 is not a valid string'})
 
 ### JsonDecoder.number
 
-`number: Decoder<number>`
+> `number: Decoder<number>`
 
 Creates a `number` decoder.
 
@@ -87,4 +87,75 @@ JsonDecoder.number.decode(99); // Ok<number>({value: 99})
 JsonDecoder.string.decode('hola'); // Err({error: 'hola is not a valid number'})
 ```
 
-_(Docs are WIP)_
+### JsonDecoder.boolean
+
+> `boolean: Decoder<boolean>`
+
+Creates a `boolean` decoder.
+
+```ts
+JsonDecoder.boolean.decode(true); // Ok<boolean>({value: true})
+JsonDecoder.boolean.decode(null); // Err({error: 'null is not a valid boolean'})
+```
+
+### JsonDecoder.object
+
+> `object<a>(decoders: DecoderObject<a>, decoderName: string, keyMap?: DecoderObjectKeyMap<a>): Decoder<a>`
+
+Creates an `object` decoder.
+
+#### @param `decoders: DecoderObject<a>`
+
+The `decoders: DecoderObject<a>` parameter is a key/value pair that has to comply with the `<a>` type.
+
+#### @param `decoderName: string`
+
+The type of the object we are decoding. i.e. `User`.
+This is used to generate meaningful decoding errors.
+
+#### @param `keyMap?: DecoderObjectKeyMap<a>`
+
+Optional key/value pair to map JSON-land keys with Model-land keys.
+Useful when the JSON keys don't match with the decoded type keys.
+
+#### Basic example
+
+```ts
+type User = {
+  firstname: string;
+  lastname: string;
+};
+const userDecoder = JsonDecoder.object<User>(
+  {
+    firstname: JsonDecoder.string,
+    lastname: JsonDecoder.string
+  },
+  'User'
+);
+const json = {
+  firstname: 'Damien',
+  lastname: 'Jurado'
+};
+userDecoder.decode(json); // Ok({firstname: 'Damien', lastname: 'Jurado'})
+```
+
+#### keyMap example
+
+```ts
+const userDecoder = JsonDecoder.object<User>(
+  {
+    firstname: JsonDecoder.string,
+    lastname: JsonDecoder.string
+  },
+  'User',
+  {
+    firstname: 'fName',
+    lastname: 'lName'
+  }
+);
+const json = {
+  fName: 'Nick',
+  lName: 'Drake'
+};
+userDecoder.decode(json); // Ok({firstname: 'Nick', lastname: 'Drake'})
+```
