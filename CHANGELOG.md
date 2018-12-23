@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.0.7"></a>
+## [0.0.7](https://github.com/joanllenas/ts.data.json/compare/v0.0.6...v0.0.7) (2018-12-23)
+
+
+### Bug Fixes
+
+* **readme:** Improved readme docs. Improved error reporting ([503e2e5](https://github.com/joanllenas/ts.data.json/commit/503e2e5))
+
+
+
 <a name="0.0.6"></a>
 ## [0.0.6](https://github.com/joanllenas/ts.data.json/compare/v0.0.5...v0.0.6) (2018-12-22)
 
