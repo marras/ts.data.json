@@ -63,7 +63,7 @@ userDecoder
 // Output: <User> decoder failed at key "lastname" with error: null is not a valid string
 ```
 
-## Api
+## API
 
 ### JsonDecoder.string
 
@@ -110,8 +110,7 @@ Key/value pair that has to comply with the `<a>` type.
 
 #### @param `decoderName: string`
 
-The type of the object we are decoding. i.e. `User`.
-This is used to generate meaningful decoding error messages.
+The type of the object we are decoding. i.e. `User`. It is used to generate meaningful decoding error messages.
 
 #### @param `keyMap?: DecoderObjectKeyMap<a>`
 
@@ -183,20 +182,239 @@ userDecoder.decode(json);
 
 Creates an `array` decoder.
 
-#### @param `decoder: DecoderObject<a>`
+#### @param `decoder: Decoder<a>`
 
 The decoder used to decode every `Array<a>` item.
 
 #### @param `decoderName: string`
 
-The type of the object we are decoding. i.e. `User[]`.
-This is used to generate meaningful decoding error messages.
+The type of the object we are decoding. i.e. `User[]`. It is used to generate meaningful decoding error messages.
 
 ```ts
 JsonDecoder.array<number>(JsonDecoder.number, 'number[]').decode([1, 2, 3]);
 // Output: Ok<number[]>({value: [1, 2, 3]})
+
 JsonDecoder.array<number>(JsonDecoder.number, 'number[]').decode([1, '2', 3]);
 // Output: Err({error: '<number[]> decoder failed at index 1 with error: "2" is not a valid number'})
 ```
 
-_(Docs are a WIP)_
+### JsonDecoder.dictionary
+
+> `dictionary<a>(decoder: Decoder<a>, decoderName: string): Decoder<{ [name: string]: a }>`
+
+Creates a `dictionary` decoder.
+
+#### @param `decoder: Decoder<a>`
+
+The decoder used to decode every value of the key/value pairs.
+
+#### @param `decoderName: string`
+
+The type of the object we are decoding. i.e. `User`. It is used to generate meaningful decoding error messages.
+
+```ts
+JsonDecoder.dictionary(JsonDecoder.number, 'Dict<number>').decode({
+  a: 1,
+  b: 2
+});
+// Output: Ok<Dict<number>>({value: {a: 1, b: 2}})
+
+JsonDecoder.dictionary(JsonDecoder.number, 'Dict<number>').decode({
+  a: 1,
+  b: 2,
+  c: null
+});
+// Output: Err({error: '<Dict<number>> dictionary decoder failed at key "c" with error: null is not a valid number'})
+```
+
+### JsonDecoder.oneOf
+
+> `oneOf<a>(decoders: Array<Decoder<a>>, decoderName: string): Decoder<a>`
+
+The `oneOf` decoder tries to decode the provided JSON with a collection of decoders. It returns `Ok` with the first successful decoded value or `Err` if all decoders fail.
+
+#### @param `decoders: Array<Decoder<a>>`
+
+The array of possible decoders that the JSON can be decoded with.
+
+#### @param `decoderName: string`
+
+The type of the object we are decoding. i.e. `number | string`. It is used to generate meaningful decoding error messages.
+
+```ts
+JsonDecoder.oneOf<string | number>(
+  [JsonDecoder.string, JsonDecoder.number],
+  'string | number'
+).decode(1);
+// Output: Ok<string | number>({value: 1})
+
+JsonDecoder.oneOf<string | number>(
+  [JsonDecoder.string, JsonDecoder.number],
+  'string | number'
+).decode(true);
+// Output: Err({error: "<string | number> decoder failed because true can't be decoded with any of the provided oneOf decoders"})
+```
+
+### JsonDecoder.lazy
+
+> `lazy<a>(mkDecoder: () => Decoder<a>): Decoder<a>`
+
+Decoder for recursive data structures.
+
+#### @param `mkDecoder: () => Decoder<a>`
+
+Function that returns a decoder.
+
+```ts
+type Node<a> = {
+  value: a;
+  children?: Node<a>[];
+};
+const treeDecoder: JsonDecoder.Decoder<Node<string>> = JsonDecoder.object<
+  Node<string>
+>(
+  {
+    value: JsonDecoder.string,
+    children: JsonDecoder.oneOf<Node<string>[]>(
+      [
+        JsonDecoder.lazy(() => JsonDecoder.array(treeDecoder, 'Node<a>[]')),
+        JsonDecoder.isUndefined([])
+      ],
+      'Node<string>[] | isUndefined'
+    )
+  },
+  'Node<string>'
+);
+treeDecoder.decode({
+  value: 'root',
+  children: [
+    { value: '1' },
+    { value: '2', children: [{ value: '2.1' }, { value: '2.2' }] }
+  ]
+});
+// Output: Ok<Node<string>>({value: {value: 'root', children: [....]}})
+
+treeDecoder.decode({
+  value: 'root',
+  children: null
+});
+// Output: Err({error: "<Node<string>> decoder failed at key 'children' with error: <Node<string>[] | isUndefined> decoder failed because null can't be decoded with any of the provided oneOf decoders"})
+```
+
+### JsonDecoder.failover
+
+> `failover<a>(defaultValue: a, decoder: Decoder<a>): Decoder<a>`
+
+Creates a decoder that returns a default value on failure.
+
+#### @param `defaultValue: a`
+
+The returned `Ok` default value when the decoder fails.
+
+#### @param `decoder: Decoder<a>`
+
+The decoder that the JSON will be decoded with.
+
+```ts
+JsonDecoder.failover('default value', JsonDecoder.string).decode(
+  'This is fine'
+);
+// Ok<string>({value: 'This is fine'})
+
+JsonDecoder.failover('default value', JsonDecoder.string).decode(null);
+// Ok<string>({value: 'default value'})
+```
+
+### JsonDecoder.succeed
+
+> `succeed: Decoder<any>`
+
+Creates a decoder that always succeeds.
+
+```ts
+JsonDecoder.succeed.decode(null); // Ok<any>({value: null})
+```
+
+### JsonDecoder.fail
+
+> `fail<a>(error: string): Decoder<a>`
+
+Creates a decoder that always fails.
+
+#### @param `error: string`
+
+The error message that will be returned with the `Err` instance.
+
+```ts
+JsonDecoder.fail('Something wrong happened').decode('This is fine');
+// Err({error: 'Something wrong happened'})
+```
+
+### JsonDecoder.isNull
+
+> `isNull<a>(defaultValue: a): Decoder<a>`
+
+Succeeds when JSON is strictly (===) null and returns a defaultValue.
+
+#### @param `defaultValue: a`
+
+The returned default value when JSON is null.
+
+```ts
+JsonDecoder.isNull('default value').decode(null);
+// Ok({value: 'default value'})
+
+JsonDecoder.isNull('default value').decode(999);
+// Err({error: '999 is not null'})
+```
+
+### JsonDecoder.isUndefined
+
+> `isUndefined<a>(defaultValue: a): Decoder<a>`
+
+Succeeds when JSON is strictly (===) undefined and returns a defaultValue.
+
+#### @param `defaultValue: a`
+
+The returned default value when JSON is undefined.
+
+```ts
+JsonDecoder.isUndefined('default value').decode(undefined);
+// Ok({value: 'default value'})
+
+JsonDecoder.isUndefined('default value').decode(999);
+// Err({error: '999 is not undefined'})
+```
+
+### JsonDecoder.isExactly
+
+> `isExactly<a>(value: a): Decoder<a>`
+
+Succeeds when JSON is strictly (===) `value: a` and returns `value: a`.
+
+#### @param `value: a`
+
+The value that will be returned when the JSON is strictly equal to it.
+
+```ts
+JsonDecoder.isExactly(true).decode(true);
+// Ok({value: true})
+
+JsonDecoder.isExactly(999).decode(true);
+// Err({error: 'true is not 999'})
+```
+
+### JsonDecoder.constant
+
+> `constant<a>(value: a): Decoder<a>`
+
+Decoder that always succeeds returning `value`.
+
+#### @param `value: a`
+
+The value that will always be returned.
+
+```ts
+JsonDecoder.constant(true).decode(false);
+// Ok({value: true})
+```

@@ -217,7 +217,10 @@ export namespace JsonDecoder {
    *
    * @param decoders An array of decoders to try.
    */
-  export function oneOf<a>(decoders: Array<Decoder<a>>): Decoder<a> {
+  export function oneOf<a>(
+    decoders: Array<Decoder<a>>,
+    decoderName: string
+  ): Decoder<a> {
     return new Decoder<a>((json: any) => {
       for (let i = 0; i < decoders.length; i++) {
         const result = decoders[i].decode(json);
@@ -225,7 +228,7 @@ export namespace JsonDecoder {
           return result;
         }
       }
-      return err<a>($JsonDecoderErrors.oneOfError(json));
+      return err<a>($JsonDecoderErrors.oneOfError(decoderName, json));
     });
   }
 
@@ -235,7 +238,8 @@ export namespace JsonDecoder {
    * @param decoder An object decoder for the values. All values must have the same shape or use oneOf otherwise.
    */
   export const dictionary = <a>(
-    decoder: Decoder<a>
+    decoder: Decoder<a>,
+    decoderName: string
   ): Decoder<{ [name: string]: a }> => {
     return new Decoder<{ [name: string]: a }>(json => {
       if (json !== null && typeof json === 'object') {
@@ -247,7 +251,11 @@ export namespace JsonDecoder {
               obj[key] = result.value;
             } else {
               return err<{ [name: string]: a }>(
-                $JsonDecoderErrors.dictionaryError(key, result.error)
+                $JsonDecoderErrors.dictionaryError(
+                  decoderName,
+                  key,
+                  result.error
+                )
               );
             }
           }
@@ -361,11 +369,15 @@ export namespace $JsonDecoderErrors {
   export const nullError = (json: any): string =>
     `${JSON.stringify(json)} is not null`;
 
-  export const dictionaryError = (key: string, error: string): string =>
-    `Dictionary decoder failed at key "${key}" with error: ${error}`;
+  export const dictionaryError = (
+    decoderName: string,
+    key: string,
+    error: string
+  ): string =>
+    `<${decoderName}> dictionary decoder failed at key "${key}" with error: ${error}`;
 
-  export const oneOfError = (json: any): string =>
-    `${JSON.stringify(
+  export const oneOfError = (decoderName: string, json: any): string =>
+    `<${decoderName}> decoder failed because ${JSON.stringify(
       json
     )} can't be decoded with any of the provided oneOf decoders`;
 

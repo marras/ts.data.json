@@ -146,29 +146,29 @@ describe('json-decoder', () => {
   describe('oneOf (union types)', () => {
     it('should pick the number decoder', () => {
       expectOkWithValue(
-        JsonDecoder.oneOf<string | number>([
-          JsonDecoder.string,
-          JsonDecoder.number
-        ]).decode(1),
+        JsonDecoder.oneOf<string | number>(
+          [JsonDecoder.string, JsonDecoder.number],
+          'string | number'
+        ).decode(1),
         1
       );
     });
     it('should pick the string decoder', () => {
       expectOkWithValue(
-        JsonDecoder.oneOf<string | number>([
-          JsonDecoder.string,
-          JsonDecoder.number
-        ]).decode('hola'),
+        JsonDecoder.oneOf<string | number>(
+          [JsonDecoder.string, JsonDecoder.number],
+          'string | number'
+        ).decode('hola'),
         'hola'
       );
     });
     it('should fail when no matching decoders are found', () => {
       expectErrWithMsg(
-        JsonDecoder.oneOf<string | number>([
-          JsonDecoder.string,
-          JsonDecoder.number
-        ]).decode(true),
-        $JsonDecoderErrors.oneOfError(true)
+        JsonDecoder.oneOf<string | number>(
+          [JsonDecoder.string, JsonDecoder.number],
+          'string | number'
+        ).decode(true),
+        $JsonDecoderErrors.oneOfError('string | number', true)
       );
     });
   });
@@ -334,7 +334,10 @@ describe('json-decoder', () => {
       },
       'User'
     );
-    const groupOfUsersDecoder = JsonDecoder.dictionary<User>(userDecoder);
+    const groupOfUsersDecoder = JsonDecoder.dictionary<User>(
+      userDecoder,
+      'Dict<User>'
+    );
     const groupDecoder = JsonDecoder.object<Group>(
       {
         id: JsonDecoder.number,
@@ -373,7 +376,22 @@ describe('json-decoder', () => {
       });
     });
 
-    it('should fail to decode a dictionary with a partial key/value pair value', () => {
+    it('should fail to decode a primitive dictionary with an invalid value', () => {
+      expectErrWithMsg(
+        JsonDecoder.dictionary(JsonDecoder.number, 'Dict<number>').decode({
+          a: 1,
+          b: 2,
+          c: null
+        }),
+        $JsonDecoderErrors.dictionaryError(
+          'Dict<number>',
+          'c',
+          $JsonDecoderErrors.primitiveError(null, 'number')
+        )
+      );
+    });
+
+    it('should fail to decode a dictionary with a partial key/value pair object value', () => {
       const group = {
         id: 2,
         users: {
@@ -393,6 +411,7 @@ describe('json-decoder', () => {
           'Group',
           'users',
           $JsonDecoderErrors.dictionaryError(
+            'Dict<User>',
             'KJH764',
             $JsonDecoderErrors.objectError(
               'User',
@@ -504,10 +523,13 @@ describe('json-decoder', () => {
     >(
       {
         value: JsonDecoder.string,
-        children: JsonDecoder.oneOf<Node<string>[]>([
-          JsonDecoder.lazy(() => JsonDecoder.array(treeDecoder, 'Node<a>[]')),
-          JsonDecoder.isUndefined([])
-        ])
+        children: JsonDecoder.oneOf<Node<string>[]>(
+          [
+            JsonDecoder.lazy(() => JsonDecoder.array(treeDecoder, 'Node<a>[]')),
+            JsonDecoder.isUndefined([])
+          ],
+          'Node<string>[] | isUndefined'
+        )
       },
       'Node<string>'
     );
