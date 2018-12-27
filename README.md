@@ -8,6 +8,8 @@ Typescript type annotations give us compile-time guarantees, but at run-time, wh
 
 JSON decoders validate the JSON before it comes into our program. So if the data has an unexpected structure, we learn about it immediately.
 
+> If you are new to JSON decoding, you may want to read the introductory article [Decoding JSON with Typescript](https://dev.to/joanllenas/decoding-json-with-typescript-1jjc) about why and how to use this library.
+
 ## Install
 
 ```
