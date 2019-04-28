@@ -173,6 +173,37 @@ describe('json-decoder', () => {
     });
   });
 
+  // allOf
+  describe('allOf', () => {
+    it('should be equivalent to the string decoder', () => {
+      expectOkWithValue(
+        JsonDecoder.allOf(JsonDecoder.string).decode('hola'),
+        'hola'
+      );
+    });
+    it('should return output from the last decoder', () => {
+      expectOkWithValue(
+        JsonDecoder.allOf(
+          JsonDecoder.string,
+          JsonDecoder.failover(10, JsonDecoder.number)
+        ).decode('hola'),
+        10
+      );
+    });
+    it('should fail if the first decoder fails', () => {
+      expectErrWithMsg(
+        JsonDecoder.allOf(JsonDecoder.string, JsonDecoder.number).decode(10),
+        $JsonDecoderErrors.primitiveError(10, 'string')
+      );
+    });
+    it('should fail if the last decoder fails', () => {
+      expectErrWithMsg(
+        JsonDecoder.allOf(JsonDecoder.string, JsonDecoder.number).decode('10'),
+        $JsonDecoderErrors.primitiveError('10', 'number')
+      );
+    });
+  });
+
   // object
   describe('object', () => {
     type User = {
