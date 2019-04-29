@@ -235,7 +235,7 @@ JsonDecoder.dictionary(JsonDecoder.number, 'Dict<number>').decode({
 
 > `oneOf<a>(decoders: Array<Decoder<a>>, decoderName: string): Decoder<a>`
 
-The `oneOf` decoder tries to decode the provided JSON with a collection of decoders. It returns `Ok` with the first successful decoded value or `Err` if all decoders fail.
+The `oneOf` decoder tries to decode the provided JSON with any of the provided decoders. It returns `Ok` with the first successful decoded value or `Err` if all decoders fail.
 
 #### @param `decoders: Array<Decoder<a>>`
 
@@ -257,6 +257,50 @@ JsonDecoder.oneOf<string | number>(
   'string | number'
 ).decode(true);
 // Output: Err({error: "<string | number> decoder failed because true can't be decoded with any of the provided oneOf decoders"})
+```
+
+### JsonDecoder.allOf
+
+> `allOf<T extends Array<Decoder<unknown>>, R = AllOfDecoderReturn<T>>(decoders: T): Decoder<R>`
+
+The `allOf` decoder tries to decode the provided JSON with all of the provided decoders, in order. The output of one decoder is passed as input to the next decoder. It returns `Ok` with the last successful decoded value or `Err` if any decoder fails.
+
+The `allOf` decoder allows you to combine multiple decoders. It is probably most useful when combined with custom decoders you may make for your application.
+
+#### @param `decoders: T extends Array<Decoder<unknown>>`
+
+An array of decoders that the JSON should be decoded with.
+
+Simple examples:
+
+```ts
+JsonDecoder.allOf(
+  JsonDecoder.string,
+  JsonDecoder.failover(10, JsonDecoder.number)
+).decode('hola'),
+// Output: Ok({value: 10})
+
+JsonDecoder.allOf(
+  JsonDecoder.string,
+  JsonDecoder.failover(10, JsonDecoder.number)
+).decode(5),
+// Output: Err({error: "5 is not a valid string})
+```
+
+Example using a custom `hasLength()` decoder (_assume this custom `hasLength()` decoder ensures an array is of a specific length_):
+
+```ts
+JsonDecoder.allOf(
+  JsonDecoder.array(JsonDecoder.number, 'latLang'),
+  hasLength<[number, number]>(2)
+).decode([-123.34324, 23.454365]);
+// Output: Ok({value: [-123.34324, 23.454365]})
+
+JsonDecoder.allOf(
+  JsonDecoder.array(JsonDecoder.number, 'latLang'),
+  hasLength<[number, number]>(2)
+).decode([1, 2, 3]);
+// Output: Err({error: "hasLength() decoder failed because the provided array is of length 3."})
 ```
 
 ### JsonDecoder.lazy
