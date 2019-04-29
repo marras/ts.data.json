@@ -267,7 +267,7 @@ export namespace JsonDecoder {
     29,
     30
   ][T];
-  
+
   /**
    * Plucks the last type in a tuple of length 30 or less.
    * Else returns the first type in a tuple.
@@ -286,15 +286,16 @@ export namespace JsonDecoder {
    *
    * @param decoders a spread of decoders to use.
    */
-  export function allOf<T extends Decoder<unknown>[], R = AllOfDecoderReturn<T>>(
-    ...decoders: T
-  ): Decoder<R> {
+  export function allOf<
+    T extends Array<Decoder<unknown>>,
+    R = AllOfDecoderReturn<T>
+  >(...decoders: T): Decoder<R> {
     return new Decoder<R>((json: any) =>
       decoders.reduce(
         (prev, curr) =>
           (prev instanceof Ok ? curr.decode(prev.value) : prev) as Result<R>,
         ok<R>(json)
-      ),
+      )
     );
   }
 
