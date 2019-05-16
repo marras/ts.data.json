@@ -287,7 +287,7 @@ JsonDecoder.allOf(
 // Output: Err({error: "5 is not a valid string})
 ```
 
-Example using a custom `hasLength()` decoder (_assume this custom `hasLength()` decoder ensures an array is of a specific length_):
+Example using a custom `hasLength()` decoder (an example [here](https://stackblitz.com/edit/typescript-97ergz)):
 
 ```ts
 JsonDecoder.allOf(
