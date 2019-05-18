@@ -56,7 +56,7 @@ export namespace JsonDecoder {
         if (result instanceof Ok) {
           return ok(fn(result.value));
         } else {
-          return result;
+          return err(result.error);
         }
       });
     }
@@ -71,7 +71,7 @@ export namespace JsonDecoder {
         if (result instanceof Ok) {
           return fn(result.value).decode(json);
         } else {
-          return result;
+          return err(result.error);
         }
       });
     }

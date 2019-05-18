@@ -1,7 +1,7 @@
 import { JsonDecoder, $JsonDecoderErrors } from './json-decoder';
 
 import * as chai from 'chai';
-import { Ok, Result, Err } from './result';
+import { Ok, Result, Err, ok, err } from './result';
 
 const expect = chai.expect;
 
@@ -9,16 +9,13 @@ const expect = chai.expect;
 const expectOkWithValue = <a>(result: Result<a>, expectedValue: a) =>
   expect(result)
     .to.be.an.instanceof(Ok)
-    .and.to.deep.equal({
-      value: expectedValue,
-      map: Ok.prototype.map
-    });
+    .and.to.deep.equal(ok(expectedValue));
 const expectErr = <a>(result: Result<a>) =>
   expect(result).to.be.an.instanceof(Err);
 const expectErrWithMsg = <a>(result: Result<a>, expectedErrorMsg: string) =>
   expect(result)
     .to.be.an.instanceof(Err)
-    .and.to.deep.equal({ error: expectedErrorMsg, map: Err.prototype.map });
+    .and.to.deep.equal(err(expectedErrorMsg));
 
 // Tests
 describe('json-decoder', () => {
