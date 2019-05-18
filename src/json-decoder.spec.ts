@@ -10,14 +10,15 @@ const expectOkWithValue = <a>(result: Result<a>, expectedValue: a) =>
   expect(result)
     .to.be.an.instanceof(Ok)
     .and.to.deep.equal({
-      value: expectedValue
+      value: expectedValue,
+      map: Ok.prototype.map
     });
 const expectErr = <a>(result: Result<a>) =>
   expect(result).to.be.an.instanceof(Err);
 const expectErrWithMsg = <a>(result: Result<a>, expectedErrorMsg: string) =>
   expect(result)
     .to.be.an.instanceof(Err)
-    .and.to.deep.equal({ error: expectedErrorMsg });
+    .and.to.deep.equal({ error: expectedErrorMsg, map: Err.prototype.map });
 
 // Tests
 describe('json-decoder', () => {
