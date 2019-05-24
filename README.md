@@ -466,3 +466,8 @@ The value that will always be returned.
 JsonDecoder.constant(true).decode(false);
 // Ok({value: true})
 ```
+
+## Related libraries
+
+- https://github.com/kofno/jsonous
+- https://github.com/jquense/yup
