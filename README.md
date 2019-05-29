@@ -88,7 +88,7 @@ Creates a `number` decoder.
 
 ```ts
 JsonDecoder.number.decode(99); // Ok<number>({value: 99})
-JsonDecoder.string.decode('hola'); // Err({error: 'hola is not a valid number'})
+JsonDecoder.number.decode('hola'); // Err({error: 'hola is not a valid number'})
 ```
 
 ### JsonDecoder.boolean
