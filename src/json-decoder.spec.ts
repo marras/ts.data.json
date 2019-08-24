@@ -338,6 +338,37 @@ describe('json-decoder', () => {
         );
       });
     });
+
+    describe('objectStrict', () => {
+      const strictUserDecoder = JsonDecoder.objectStrict<User>(
+        {
+          firstname: JsonDecoder.string,
+          lastname: JsonDecoder.string
+        },
+        'User'
+      );
+      it('should succeed when object has exactly all keys', () => {
+        const user = {
+          firstname: 'John',
+          lastname: 'Doe'
+        };
+        expectOkWithValue(strictUserDecoder.decode(user), {
+          firstname: 'John',
+          lastname: 'Doe'
+        });
+      });
+      it('should fail when object has unknown keys', () => {
+        const user = {
+          firstname: 'John',
+          lastname: 'Doe',
+          email: 'doe@johndoe.com'
+        };
+        expectErrWithMsg(
+          strictUserDecoder.decode(user),
+          $JsonDecoderErrors.objectStrictUnknownKeyError('User', 'email')
+        );
+      });
+    });
   });
 
   // dictionary
@@ -1001,7 +1032,7 @@ describe('json-decoder', () => {
       'User'
     );
 
-    it('should succeed', () => {
+    it('should succeed', done => {
       const jsonObjectOk = {
         firstname: 'Damien',
         lastname: 'Jurado'
@@ -1010,16 +1041,14 @@ describe('json-decoder', () => {
       userDecoder
         .decodePromise(jsonObjectOk)
         .then(user => {
-          console.log(
-            `User ${user.firstname} ${user.lastname} decoded successfully`
-          );
+          done();
         })
         .catch(error => {
-          console.error(error);
+          done(error);
         });
     });
 
-    it('should fail', () => {
+    it('should fail', done => {
       const jsonObjectKo = {
         firstname: 'Erik',
         lastname: null
@@ -1028,10 +1057,10 @@ describe('json-decoder', () => {
       userDecoder
         .decodePromise(jsonObjectKo)
         .then(user => {
-          console.log('User decoded successfully');
+          done('Unexpectedly the User decoded successfully');
         })
         .catch(error => {
-          console.error(error);
+          done();
         });
     });
   });
