@@ -180,6 +180,51 @@ userDecoder.decode(json);
 // Output: Err({error: '<User> decoder failed at key "lastname" (mapped from the JSON key "lName") with error: undefined is not a valid string'})
 ```
 
+### JsonDecoder.objectStrict
+
+> `objectStrict<a>(decoders: DecoderObject<a>, decoderName: string): Decoder<a>`
+
+Creates an `object` decoder that performs strict key checks. It only accepts json objects with exactly the same keys as the decoder keys.
+
+#### @param `decoders: DecoderObject<a>`
+
+Key/value pair that has to comply with the `<a>` type.
+
+#### @param `decoderName: string`
+
+The type of the object we are decoding. i.e. `User`. It is used to generate meaningful decoding error messages.
+
+#### Basic example
+
+```ts
+type User = {
+  firstname: string;
+  lastname: string;
+};
+const userDecoder = JsonDecoder.objectStrict<User>(
+  {
+    firstname: JsonDecoder.string,
+    lastname: JsonDecoder.string
+  },
+  'User'
+);
+
+const jsonOk = {
+  firstname: 'Damien',
+  lastname: 'Jurado'
+};
+userDecoder.decode(jsonOk);
+// Output: Ok<User>({value: {firstname: 'Damien', lastname: 'Jurado'}})
+
+const jsonKo = {
+  firstname: 'Damien',
+  lastname: 'Jurado',
+  email: 'damien@damienjurado.com'
+};
+userDecoder.decode(jsonKo);
+// Output: Err({error: 'Unknown key "email" found while processing strict <User> decoder'})
+```
+
 ### JsonDecoder.array
 
 > `array<a>(decoder: Decoder<a>, decoderName: string): Decoder<Array<a>>`
