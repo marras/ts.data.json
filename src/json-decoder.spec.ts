@@ -910,6 +910,17 @@ describe('json-decoder', () => {
             .value
         ).to.be.an.instanceOf(Date);
       });
+      it('should keep transforming based on the previous transformation value', () => {
+        const decoder = JsonDecoder.array(JsonDecoder.number, 'latLang')
+          .map(arr => arr.slice(2))
+          .map(arr => arr.slice(2))
+          .map(arr => arr.slice(2));
+        expectOkWithValue(decoder.decode([1, 2, 3, 4, 5, 6, 7, 8, 9]), [
+          7,
+          8,
+          9
+        ]);
+      });
     });
 
     describe('then', () => {
@@ -1014,6 +1025,32 @@ describe('json-decoder', () => {
           shapeDecoder.decode(circle),
           `<Shape> does not support type "circle"`
         );
+      });
+
+      it('should chain decoders based on previous value', () => {
+        const hasLength = (len: number) => (json: any[]) =>
+          new JsonDecoder.Decoder(_ => {
+            if ((json as any[]).length === len) {
+              return ok<any[]>(json);
+            } else {
+              return err<any[]>(
+                `Array length is not ${len}, is ${json.length}`
+              );
+            }
+          });
+        const decoder = JsonDecoder.array(JsonDecoder.number, 'latLang')
+          .map(arr => arr.slice(2))
+          .then(hasLength(8))
+          .map(arr => arr.slice(2))
+          .then(hasLength(6))
+          .map(arr => arr.slice(2))
+          .then(hasLength(4));
+        expectOkWithValue(decoder.decode([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]), [
+          7,
+          8,
+          9,
+          10
+        ]);
       });
     });
   });
