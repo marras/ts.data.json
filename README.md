@@ -514,5 +514,6 @@ JsonDecoder.constant(true).decode(false);
 
 ## Related libraries
 
+- https://github.com/gcanti/io-ts
 - https://github.com/kofno/jsonous
 - https://github.com/jquense/yup
