@@ -394,6 +394,53 @@ treeDecoder.decode({
 // Output: Err({error: "<Node<string>> decoder failed at key 'children' with error: <Node<string>[] | isUndefined> decoder failed because null can't be decoded with any of the provided oneOf decoders"})
 ```
 
+### JsonDecoder.optional
+
+> `optional<a>(decoder: Decoder<a>): Decoder<a | undefined>`
+
+Creates a decoder that returns a default value on failure.
+
+#### @param `decoder: Decoder<a>`
+
+The decoder that the JSON will be decoded with if not `null` or `undefined`.
+
+```ts
+type User = {
+  firstname: string;
+  lastname: string;
+};
+const userDecoder = JsonDecoder.object<User>(
+  {
+    firstname: JsonDecoder.string,
+    lastname: JsonDecoder.string
+  },
+  'User'
+);
+
+const jsonOk = {
+  firstname: 'Damien',
+  lastname: 'Jurado'
+};
+userDecoder.decode(jsonOk);
+
+const jsonKo = {
+  firstname: null,
+  lastname: 'Satie'
+};
+JsonDecoder.optional(userDecoder).decode(null);
+// Output: Ok<User | undefined>({value: undefined})
+
+JsonDecoder.optional(userDecoder).decode(undefined);
+// Output: Ok<User | undefined>({value: undefined})
+
+JsonDecoder.optional(userDecoder).decode(jsonObjectOk);
+// Output: Ok<User | undefined>({value: {firstname: 'Damien', lastname: 'Jurado'}})
+
+JsonDecoder.optional(userDecoder).decode(jsonKo);
+// Output: Err({error: '<User> decoder failed at key "firstname" with error: null is not a valid string'})
+```
+
+
 ### JsonDecoder.failover
 
 > `failover<a>(defaultValue: a, decoder: Decoder<a>): Decoder<a>`
