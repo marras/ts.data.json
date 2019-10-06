@@ -145,18 +145,25 @@ describe('json-decoder', () => {
     type User = {
       firstname: string;
       lastname: string;
+      email?: string;
     };
 
     const userDecoder = JsonDecoder.object<User>(
       {
         firstname: JsonDecoder.string,
-        lastname: JsonDecoder.string
+        lastname: JsonDecoder.string,
+        email: JsonDecoder.optional(JsonDecoder.string)
       },
       'User'
     );
     const user = {
       firstname: 'John',
       lastname: 'Doe'
+    };
+    const userWithEmail = {
+      firstname: 'John',
+      lastname: 'Doe',
+      email: 'user@example.com'
     };
 
     const badUserData = {
@@ -185,6 +192,15 @@ describe('json-decoder', () => {
       const result = JsonDecoder.optional(
         userDecoder
       ).decode(user);
+
+      expect(result).to.deep.equal(expectedSuccessResult);
+    });
+
+    it('should recursively decode optional values when a valid value is provided', () => {
+      const expectedSuccessResult = userDecoder.decode(userWithEmail);
+      const result = JsonDecoder.optional(
+        userDecoder
+      ).decode(userWithEmail);
 
       expect(result).to.deep.equal(expectedSuccessResult);
     });

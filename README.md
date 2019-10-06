@@ -398,7 +398,7 @@ treeDecoder.decode({
 
 > `optional<a>(decoder: Decoder<a>): Decoder<a | undefined>`
 
-Creates a decoder that returns a default value on failure.
+The `optional` decoder tries to decode the provided JSON with the provided decoder if the json value is not `undefined` or `null`.  This decoder is to allow for an optional value in the TypeScript definition, while retaining the ability to give a detailed error message if the wrapped decoder fails.
 
 #### @param `decoder: Decoder<a>`
 
@@ -408,11 +408,13 @@ The decoder that the JSON will be decoded with if not `null` or `undefined`.
 type User = {
   firstname: string;
   lastname: string;
+  email?: string;
 };
 const userDecoder = JsonDecoder.object<User>(
   {
     firstname: JsonDecoder.string,
-    lastname: JsonDecoder.string
+    lastname: JsonDecoder.string,
+    email: JsonDecoder.optional(JsonDecoder.string)
   },
   'User'
 );
@@ -421,20 +423,29 @@ const jsonOk = {
   firstname: 'Damien',
   lastname: 'Jurado'
 };
-userDecoder.decode(jsonOk);
+
+const jsonFullUser = {
+  firstname: 'Damien',
+  lastname: 'Jurado',
+  email: 'user@example.com'
+};
 
 const jsonKo = {
   firstname: null,
   lastname: 'Satie'
 };
+
 JsonDecoder.optional(userDecoder).decode(null);
-// Output: Ok<User | undefined>({value: undefined})
+// Output: Ok<User | undefined | null>({value: null})
 
 JsonDecoder.optional(userDecoder).decode(undefined);
-// Output: Ok<User | undefined>({value: undefined})
+// Output: Ok<User | undefined | null>({value: undefined})
 
-JsonDecoder.optional(userDecoder).decode(jsonObjectOk);
-// Output: Ok<User | undefined>({value: {firstname: 'Damien', lastname: 'Jurado'}})
+JsonDecoder.optional(userDecoder).decode(jsonOk);
+// Output: Ok<User | undefined | null>({value: {firstname: 'Damien', lastname: 'Jurado', email: undefined}})
+
+JsonDecoder.optional(userDecoder).decode(jsonFullUser);
+// Output: Ok<User | undefined | null>({value: {firstname: 'Damien', lastname: 'Jurado', email: 'user@example.com'}})
 
 JsonDecoder.optional(userDecoder).decode(jsonKo);
 // Output: Err({error: '<User> decoder failed at key "firstname" with error: null is not a valid string'})
