@@ -8,6 +8,9 @@
     "build": "tsc",
     "test": "mocha --reporter spec --compilers ts:ts-node/register 'src/**/*.spec.ts'",
     "release": "npm run build && npm run test && standard-version",
+    "release-patch": "npm run release -- --release-as patch",
+    "release-minor": "npm run release -- --release-as minor",
+    "release-major": "npm run release -- --release-as major",
     "pub": "git push --follow-tags origin master && tsc && npm publish"
   },
   "keywords": [
