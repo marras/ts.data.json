@@ -402,7 +402,7 @@ The `optional` decoder tries to decode the provided JSON with the provided decod
 
 #### @param `decoder: Decoder<a>`
 
-The decoder that the JSON will be decoded with if not `null` or `undefined`.
+The decoder that the JSON will be decoded with if the value is not `null` or `undefined`.
 
 ```ts
 type User = {
