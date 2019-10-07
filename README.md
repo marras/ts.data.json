@@ -394,6 +394,64 @@ treeDecoder.decode({
 // Output: Err({error: "<Node<string>> decoder failed at key 'children' with error: <Node<string>[] | isUndefined> decoder failed because null can't be decoded with any of the provided oneOf decoders"})
 ```
 
+### JsonDecoder.optional
+
+> `optional<a>(decoder: Decoder<a>): Decoder<a | undefined>`
+
+The `optional` decoder tries to decode the provided JSON with the provided decoder if the json value is not `undefined` or `null`.  This decoder is to allow for an optional value in the TypeScript definition, while retaining the ability to give a detailed error message if the wrapped decoder fails.
+
+#### @param `decoder: Decoder<a>`
+
+The decoder that the JSON will be decoded with if the value is not `null` or `undefined`.
+
+```ts
+type User = {
+  firstname: string;
+  lastname: string;
+  email?: string;
+};
+const userDecoder = JsonDecoder.object<User>(
+  {
+    firstname: JsonDecoder.string,
+    lastname: JsonDecoder.string,
+    email: JsonDecoder.optional(JsonDecoder.string)
+  },
+  'User'
+);
+
+const jsonOk = {
+  firstname: 'Damien',
+  lastname: 'Jurado'
+};
+
+const jsonFullUser = {
+  firstname: 'Damien',
+  lastname: 'Jurado',
+  email: 'user@example.com'
+};
+
+const jsonKo = {
+  firstname: null,
+  lastname: 'Satie'
+};
+
+JsonDecoder.optional(userDecoder).decode(null);
+// Output: Ok<User | undefined | null>({value: null})
+
+JsonDecoder.optional(userDecoder).decode(undefined);
+// Output: Ok<User | undefined | null>({value: undefined})
+
+JsonDecoder.optional(userDecoder).decode(jsonOk);
+// Output: Ok<User | undefined | null>({value: {firstname: 'Damien', lastname: 'Jurado', email: undefined}})
+
+JsonDecoder.optional(userDecoder).decode(jsonFullUser);
+// Output: Ok<User | undefined | null>({value: {firstname: 'Damien', lastname: 'Jurado', email: 'user@example.com'}})
+
+JsonDecoder.optional(userDecoder).decode(jsonKo);
+// Output: Err({error: '<User> decoder failed at key "firstname" with error: null is not a valid string'})
+```
+
+
 ### JsonDecoder.failover
 
 > `failover<a>(defaultValue: a, decoder: Decoder<a>): Decoder<a>`

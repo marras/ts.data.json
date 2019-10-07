@@ -140,6 +140,81 @@ describe('json-decoder', () => {
     });
   });
 
+  // optional
+  describe('optional', () => {
+    type User = {
+      firstname: string;
+      lastname: string;
+      email?: string;
+    };
+
+    const userDecoder = JsonDecoder.object<User>(
+      {
+        firstname: JsonDecoder.string,
+        lastname: JsonDecoder.string,
+        email: JsonDecoder.optional(JsonDecoder.string)
+      },
+      'User'
+    );
+    const user = {
+      firstname: 'John',
+      lastname: 'Doe'
+    };
+    const userWithEmail = {
+      firstname: 'John',
+      lastname: 'Doe',
+      email: 'user@example.com'
+    };
+
+    const badUserData = {
+      firstname: 2,
+      lastname: 'Doe'
+    };
+
+    it('should decode a null value', () => {
+      expectOkWithValue(
+        JsonDecoder.optional(
+          userDecoder
+        ).decode(null),
+        undefined);
+    });
+
+    it('should decode an undefined value', () => {
+      expectOkWithValue(
+        JsonDecoder.optional(
+          userDecoder
+        ).decode(undefined),
+        undefined);
+    });
+
+    it('should decode the value when a valid value is provided', () => {
+      const expectedSuccessResult = userDecoder.decode(user);
+      const result = JsonDecoder.optional(
+        userDecoder
+      ).decode(user);
+
+      expect(result).to.deep.equal(expectedSuccessResult);
+    });
+
+    it('should recursively decode optional values when a valid value is provided', () => {
+      const expectedSuccessResult = userDecoder.decode(userWithEmail);
+      const result = JsonDecoder.optional(
+        userDecoder
+      ).decode(userWithEmail);
+
+      expect(result).to.deep.equal(expectedSuccessResult);
+    });
+
+    it('should fail with message from wrapped decoder when unable to decode object', () => {
+      const expectedErrorResult = userDecoder.decode(badUserData);
+      const result = JsonDecoder.optional(
+        userDecoder
+      ).decode(badUserData);
+
+      expect(result).to.deep.equal(expectedErrorResult);
+    });
+  });
+
   // oneOf
   describe('oneOf (union types)', () => {
     it('should pick the number decoder', () => {

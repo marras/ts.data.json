@@ -252,6 +252,27 @@ export namespace JsonDecoder {
   }
 
   /**
+   * Tries to decode with `decoder` and returns `error` on failure, but allows
+   * for `undefined` or `null` values to be present at the top level and returns
+   * an `undefined` if the value was `undefined` or `null`.
+   *
+   * @param decoder The actual decoder to use.
+   */
+  export function optional<a>(
+    decoder: Decoder<a>
+  ): Decoder<a|undefined> {
+    return new Decoder<a|undefined>((json: any) => {
+      if (json === undefined) {
+        return ok<undefined>(undefined);
+      } else if (json === null) {
+        return ok<undefined>(undefined);
+      } else {
+        return decoder.decode(json);
+      }
+    });
+  };
+
+  /**
    * Tries to decode the provided json value with any of the provided `decoders`.
    * If all provided `decoders` fail, this decoder fails.
    * Otherwise, it returns the first successful decoder.
