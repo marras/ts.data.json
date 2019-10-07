@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.2](https://github.com/joanllenas/ts.data.json/compare/v0.2.1...v0.2.2) (2019-10-07)
+
+
+### Features
+
+* **decoders:** Added new decoder for optional fields ([033a292](https://github.com/joanllenas/ts.data.json/commit/033a292))
+* **decoders:** Added new decoder for optional fields ([cdf647a](https://github.com/joanllenas/ts.data.json/commit/cdf647a))
+
 ### [0.2.1](https://github.com/joanllenas/ts.data.json/compare/v0.2.0...v0.2.1) (2019-08-24)
 
 
