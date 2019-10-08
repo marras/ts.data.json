@@ -436,16 +436,16 @@ const jsonKo = {
 };
 
 JsonDecoder.optional(userDecoder).decode(null);
-// Output: Ok<User | undefined | null>({value: null})
+// Output: Ok<User | undefined>({value: null})
 
 JsonDecoder.optional(userDecoder).decode(undefined);
-// Output: Ok<User | undefined | null>({value: undefined})
+// Output: Ok<User | undefined>({value: undefined})
 
 JsonDecoder.optional(userDecoder).decode(jsonOk);
-// Output: Ok<User | undefined | null>({value: {firstname: 'Damien', lastname: 'Jurado', email: undefined}})
+// Output: Ok<User | undefined>({value: {firstname: 'Damien', lastname: 'Jurado', email: undefined}})
 
 JsonDecoder.optional(userDecoder).decode(jsonFullUser);
-// Output: Ok<User | undefined | null>({value: {firstname: 'Damien', lastname: 'Jurado', email: 'user@example.com'}})
+// Output: Ok<User | undefined>({value: {firstname: 'Damien', lastname: 'Jurado', email: 'user@example.com'}})
 
 JsonDecoder.optional(userDecoder).decode(jsonKo);
 // Output: Err({error: '<User> decoder failed at key "firstname" with error: null is not a valid string'})
