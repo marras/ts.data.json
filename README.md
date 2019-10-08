@@ -436,7 +436,7 @@ const jsonKo = {
 };
 
 JsonDecoder.optional(userDecoder).decode(null);
-// Output: Ok<User | undefined>({value: null})
+// Output: Ok<User | undefined>({value: undefined})
 
 JsonDecoder.optional(userDecoder).decode(undefined);
 // Output: Ok<User | undefined>({value: undefined})
