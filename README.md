@@ -575,3 +575,4 @@ JsonDecoder.constant(true).decode(false);
 - https://github.com/gcanti/io-ts
 - https://github.com/kofno/jsonous
 - https://github.com/jquense/yup
+- https://gitlab.com/john.carroll.p/ts-decoders
