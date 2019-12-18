@@ -173,43 +173,35 @@ describe('json-decoder', () => {
 
     it('should decode a null value', () => {
       expectOkWithValue(
-        JsonDecoder.optional(
-          userDecoder
-        ).decode(null),
-        undefined);
+        JsonDecoder.optional(userDecoder).decode(null),
+        undefined
+      );
     });
 
     it('should decode an undefined value', () => {
       expectOkWithValue(
-        JsonDecoder.optional(
-          userDecoder
-        ).decode(undefined),
-        undefined);
+        JsonDecoder.optional(userDecoder).decode(undefined),
+        undefined
+      );
     });
 
     it('should decode the value when a valid value is provided', () => {
       const expectedSuccessResult = userDecoder.decode(user);
-      const result = JsonDecoder.optional(
-        userDecoder
-      ).decode(user);
+      const result = JsonDecoder.optional(userDecoder).decode(user);
 
       expect(result).to.deep.equal(expectedSuccessResult);
     });
 
     it('should recursively decode optional values when a valid value is provided', () => {
       const expectedSuccessResult = userDecoder.decode(userWithEmail);
-      const result = JsonDecoder.optional(
-        userDecoder
-      ).decode(userWithEmail);
+      const result = JsonDecoder.optional(userDecoder).decode(userWithEmail);
 
       expect(result).to.deep.equal(expectedSuccessResult);
     });
 
     it('should fail with message from wrapped decoder when unable to decode object', () => {
       const expectedErrorResult = userDecoder.decode(badUserData);
-      const result = JsonDecoder.optional(
-        userDecoder
-      ).decode(badUserData);
+      const result = JsonDecoder.optional(userDecoder).decode(badUserData);
 
       expect(result).to.deep.equal(expectedErrorResult);
     });
@@ -705,7 +697,7 @@ describe('json-decoder', () => {
       });
     });
     it('should fail to decode a recursive tree data structure if any of its nodes fails', () => {
-      const json = {
+      const json2 = {
         value: 'root',
         children: [
           { value: '1' },
@@ -719,7 +711,7 @@ describe('json-decoder', () => {
           }
         ]
       };
-      expectErr(treeDecoder.decode(json));
+      expectErr(treeDecoder.decode(json2));
     });
     it('should fail to decode a recursive tree data structure if the value is null or undefined', () => {
       expectErrWithMsg(

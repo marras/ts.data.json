@@ -40,8 +40,8 @@ describe('Result', () => {
       num % 2 === 0 ? ok(num) : err<number>('not even');
     const example = (n: number) =>
       onlyEven(n)
-        .map(n => n * 2)
-        .map(n => Number(n).toString(16))
+        .map(n2 => n2 * 2)
+        .map(n2 => Number(n2).toString(16))
         .map(hex => `#${hex}`);
     expect(example(5)).to.deep.equal(err('not even'));
     expect(example(6)).to.deep.equal(ok('#c'));

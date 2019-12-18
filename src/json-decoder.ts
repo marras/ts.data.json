@@ -258,10 +258,8 @@ export namespace JsonDecoder {
    *
    * @param decoder The actual decoder to use.
    */
-  export function optional<a>(
-    decoder: Decoder<a>
-  ): Decoder<a|undefined> {
-    return new Decoder<a|undefined>((json: any) => {
+  export function optional<a>(decoder: Decoder<a>): Decoder<a | undefined> {
+    return new Decoder<a | undefined>((json: any) => {
       if (json === undefined) {
         return ok<undefined>(undefined);
       } else if (json === null) {
@@ -270,7 +268,7 @@ export namespace JsonDecoder {
         return decoder.decode(json);
       }
     });
-  };
+  }
 
   /**
    * Tries to decode the provided json value with any of the provided `decoders`.

@@ -2,7 +2,6 @@
 
 [![Build Status](https://travis-ci.org/joanllenas/ts.data.json.svg?branch=master)](https://travis-ci.org/joanllenas/ts.data.json)
 [![npm version](https://badge.fury.io/js/ts.data.json.svg)](https://www.npmjs.com/package/ts.data.json)
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 Typescript type annotations give us compile-time guarantees, but at run-time, when data flows from the server to our clients, lots of things can go wrong.
 
@@ -112,9 +111,11 @@ Creates an `object` decoder.
 
 Key/value pair that has to comply with the `<a>` type.
 
+> Turns all optional keys to required, so you have to specify decoders even for the optional (i.e. with `{name?: string}`) keys.
+
 #### @param `decoderName: string`
 
-The type of the object we are decoding. i.e. `User`. It is used to generate meaningful decoding error messages.
+Type of the object we are decoding. i.e. `User`. It is used to generate meaningful decoding error messages.
 
 #### @param `keyMap?: DecoderObjectKeyMap<a>`
 
@@ -192,7 +193,7 @@ Key/value pair that has to comply with the `<a>` type.
 
 #### @param `decoderName: string`
 
-The type of the object we are decoding. i.e. `User`. It is used to generate meaningful decoding error messages.
+Type of the object we are decoding. i.e. `User`. It is used to generate meaningful decoding error messages.
 
 #### Basic example
 
@@ -237,7 +238,7 @@ The decoder used to decode every `Array<a>` item.
 
 #### @param `decoderName: string`
 
-The type of the object we are decoding. i.e. `User[]`. It is used to generate meaningful decoding error messages.
+Type of the object we are decoding. i.e. `User[]`. It is used to generate meaningful decoding error messages.
 
 ```ts
 JsonDecoder.array<number>(JsonDecoder.number, 'number[]').decode([1, 2, 3]);
@@ -259,7 +260,7 @@ The decoder used to decode every value of the key/value pairs.
 
 #### @param `decoderName: string`
 
-The type of the object we are decoding. i.e. `User`. It is used to generate meaningful decoding error messages.
+Type of the object we are decoding. i.e. `User`. It is used to generate meaningful decoding error messages.
 
 ```ts
 JsonDecoder.dictionary(JsonDecoder.number, 'Dict<number>').decode({
@@ -284,11 +285,11 @@ The `oneOf` decoder tries to decode the provided JSON with any of the provided d
 
 #### @param `decoders: Array<Decoder<a>>`
 
-The array of possible decoders that the JSON can be decoded with.
+The Array of decoders the JSON can be decoded with.
 
 #### @param `decoderName: string`
 
-The type of the object we are decoding. i.e. `number | string`. It is used to generate meaningful decoding error messages.
+Type of the object we are decoding. i.e. `number | string`. It is used to generate meaningful decoding error messages.
 
 ```ts
 JsonDecoder.oneOf<string | number>(
@@ -314,20 +315,20 @@ The `allOf` decoder allows you to combine multiple decoders. It is probably most
 
 #### @param `decoders: T extends Array<Decoder<unknown>>`
 
-An array of decoders that the JSON should be decoded with.
+An array of decoders the JSON should be decoded with.
 
 Simple examples:
 
 ```ts
 JsonDecoder.allOf(
-  JsonDecoder.string,
-  JsonDecoder.failover(10, JsonDecoder.number)
+ JsonDecoder.string,
+ JsonDecoder.failover(10, JsonDecoder.number)
 ).decode('hola'),
 // Output: Ok({value: 10})
 
 JsonDecoder.allOf(
-  JsonDecoder.string,
-  JsonDecoder.failover(10, JsonDecoder.number)
+ JsonDecoder.string,
+ JsonDecoder.failover(10, JsonDecoder.number)
 ).decode(5),
 // Output: Err({error: "5 is not a valid string})
 ```
@@ -356,7 +357,7 @@ Decoder for recursive data structures.
 
 #### @param `mkDecoder: () => Decoder<a>`
 
-Function that returns a decoder.
+A function that returns a decoder.
 
 ```ts
 type Node<a> = {
@@ -398,11 +399,11 @@ treeDecoder.decode({
 
 > `optional<a>(decoder: Decoder<a>): Decoder<a | undefined>`
 
-The `optional` decoder tries to decode the provided JSON with the provided decoder if the json value is not `undefined` or `null`.  This decoder is to allow for an optional value in the TypeScript definition, while retaining the ability to give a detailed error message if the wrapped decoder fails.
+The `optional` decoder tries to decode the provided JSON with the provided decoder if the json value is not `undefined` or `null`. This decoder is to allow for an optional value in the TypeScript definition while retaining the ability to give a detailed error message if the wrapped decoder fails.
 
 #### @param `decoder: Decoder<a>`
 
-The decoder that the JSON will be decoded with if the value is not `null` or `undefined`.
+Decoder the JSON will be decoded with if the value is not `null` or `undefined`.
 
 ```ts
 type User = {
@@ -451,7 +452,6 @@ JsonDecoder.optional(userDecoder).decode(jsonKo);
 // Output: Err({error: '<User> decoder failed at key "firstname" with error: null is not a valid string'})
 ```
 
-
 ### JsonDecoder.failover
 
 > `failover<a>(defaultValue: a, decoder: Decoder<a>): Decoder<a>`
@@ -460,11 +460,11 @@ Creates a decoder that returns a default value on failure.
 
 #### @param `defaultValue: a`
 
-The returned `Ok` default value when the decoder fails.
+The `Ok` default value when the decoder fails.
 
 #### @param `decoder: Decoder<a>`
 
-The decoder that the JSON will be decoded with.
+Decoder the JSON will be decoded with.
 
 ```ts
 JsonDecoder.failover('default value', JsonDecoder.string).decode(
@@ -494,7 +494,7 @@ Creates a decoder that always fails.
 
 #### @param `error: string`
 
-The error message that will be returned with the `Err` instance.
+Error message that will be returned with the `Err` instance.
 
 ```ts
 JsonDecoder.fail('Something wrong happened').decode('This is fine');
@@ -509,7 +509,7 @@ Succeeds when JSON is strictly (===) null and returns a defaultValue.
 
 #### @param `defaultValue: a`
 
-The returned default value when JSON is null.
+Returned default value when JSON is null.
 
 ```ts
 JsonDecoder.isNull('default value').decode(null);
@@ -527,7 +527,7 @@ Succeeds when JSON is strictly (===) undefined and returns a defaultValue.
 
 #### @param `defaultValue: a`
 
-The returned default value when JSON is undefined.
+Returned default value when JSON is undefined.
 
 ```ts
 JsonDecoder.isUndefined('default value').decode(undefined);
@@ -545,7 +545,7 @@ Succeeds when JSON is strictly (===) `value: a` and returns `value: a`.
 
 #### @param `value: a`
 
-The value that will be returned when the JSON is strictly equal to it.
+Value returned when the JSON is strictly equal to it.
 
 ```ts
 JsonDecoder.isExactly(true).decode(true);
@@ -559,11 +559,11 @@ JsonDecoder.isExactly(999).decode(true);
 
 > `constant<a>(value: a): Decoder<a>`
 
-Decoder that always succeeds returning `value`.
+A Decoder that always succeeds, returning `value`.
 
 #### @param `value: a`
 
-The value that will always be returned.
+Value always returned.
 
 ```ts
 JsonDecoder.constant(true).decode(false);
