@@ -119,7 +119,7 @@ export namespace JsonDecoder {
     }
   });
 
-  export type DecoderObject<a> = { [p in keyof a]: Decoder<a[p]> };
+  export type DecoderObject<a> = { [p in keyof Required<a>]: Decoder<a[p]> };
   export type DecoderObjectKeyMap<a> = { [p in keyof a]?: string };
 
   /**
