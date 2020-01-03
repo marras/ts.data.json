@@ -1,6 +1,6 @@
 import { Result } from './result';
 export declare namespace JsonDecoder {
-    class Decoder<a> {
+    export class Decoder<a> {
         private decodeFn;
         constructor(decodeFn: (json: any) => Result<a>);
         /**
@@ -36,23 +36,23 @@ export declare namespace JsonDecoder {
      *
      * @param mkDecoder A function that returns a decoder
      */
-    function lazy<a>(mkDecoder: () => Decoder<a>): Decoder<a>;
+    export function lazy<a>(mkDecoder: () => Decoder<a>): Decoder<a>;
     /**
      * Decoder for `string`.
      */
-    const string: Decoder<string>;
+    export const string: Decoder<string>;
     /**
      * Decoder for `number`.
      */
-    const number: Decoder<number>;
+    export const number: Decoder<number>;
     /**
      * Decoder for `boolean`.
      */
-    const boolean: Decoder<boolean>;
-    type DecoderObject<a> = {
-        [p in keyof a]: Decoder<a[p]>;
+    export const boolean: Decoder<boolean>;
+    export type DecoderObject<a> = {
+        [p in keyof Required<a>]: Decoder<a[p]>;
     };
-    type DecoderObjectKeyMap<a> = {
+    export type DecoderObjectKeyMap<a> = {
         [p in keyof a]?: string;
     };
     /**
@@ -63,15 +63,23 @@ export declare namespace JsonDecoder {
      * @param keyMap Optional map between json field names and user land field names.
      *               Useful when the client model does not match with what the server sends.
      */
-    function object<a>(decoders: DecoderObject<a>, decoderName: string, keyMap?: DecoderObjectKeyMap<a>): Decoder<a>;
+    export function object<a>(decoders: DecoderObject<a>, decoderName: string, keyMap?: DecoderObjectKeyMap<a>): Decoder<a>;
+    /**
+     * Decoder for objects that performs strict key checks.
+     * The decoder will fail if there are any extra keys in the provided object.
+     *
+     * @param decoders Key/value pairs of decoders for each object field.
+     * @param decoderName How to display the name of the object being decoded in errors.
+     */
+    export function objectStrict<a>(decoders: DecoderObject<a>, decoderName: string): Decoder<a>;
     /**
      * Always succeeding decoder
      */
-    const succeed: Decoder<any>;
+    export const succeed: Decoder<any>;
     /**
      * Always failing decoder
      */
-    function fail<a>(error: string): Decoder<a>;
+    export function fail<a>(error: string): Decoder<a>;
     /**
      * Tries to decode with `decoder` and returns `defaultValue` on failure.
      * (It was called maybe() before)
@@ -79,7 +87,15 @@ export declare namespace JsonDecoder {
      * @param defaultValue The default value returned in case of decoding failure.
      * @param decoder The actual decoder to use.
      */
-    function failover<a>(defaultValue: a, decoder: Decoder<a>): Decoder<a>;
+    export function failover<a>(defaultValue: a, decoder: Decoder<a>): Decoder<a>;
+    /**
+     * Tries to decode with `decoder` and returns `error` on failure, but allows
+     * for `undefined` or `null` values to be present at the top level and returns
+     * an `undefined` if the value was `undefined` or `null`.
+     *
+     * @param decoder The actual decoder to use.
+     */
+    export function optional<a>(decoder: Decoder<a>): Decoder<a | undefined>;
     /**
      * Tries to decode the provided json value with any of the provided `decoders`.
      * If all provided `decoders` fail, this decoder fails.
@@ -87,13 +103,13 @@ export declare namespace JsonDecoder {
      *
      * @param decoders An array of decoders to try.
      */
-    function oneOf<a>(decoders: Array<Decoder<a>>, decoderName: string): Decoder<a>;
+    export function oneOf<a>(decoders: Array<Decoder<a>>, decoderName: string): Decoder<a>;
     type SubtractOne<T extends number> = [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30][T];
     /**
      * Plucks the last type in a tuple of length 30 or less.
      * Else returns the first type in a tuple.
      */
-    type AllOfDecoderReturn<T extends unknown[]> = T[SubtractOne<T['length']>] extends JsonDecoder.Decoder<infer R> ? R : T[0];
+    export type AllOfDecoderReturn<T extends unknown[]> = T[SubtractOne<T['length']>] extends JsonDecoder.Decoder<infer R> ? R : T[0];
     /**
      * Tries to decode the provided json value with all of the provided `decoders`.
      * The order of the provided decoders matters: the output of one decoder is passed
@@ -102,13 +118,13 @@ export declare namespace JsonDecoder {
      *
      * @param decoders a spread of decoders to use.
      */
-    function allOf<T extends Array<Decoder<unknown>>, R = AllOfDecoderReturn<T>>(...decoders: T): Decoder<R>;
+    export function allOf<T extends Array<Decoder<unknown>>, R = AllOfDecoderReturn<T>>(...decoders: T): Decoder<R>;
     /**
      * Decoder for key/value pairs.
      *
      * @param decoder An object decoder for the values. All values must have the same shape or use oneOf otherwise.
      */
-    const dictionary: <a>(decoder: Decoder<a>, decoderName: string) => Decoder<{
+    export const dictionary: <a>(decoder: Decoder<a>, decoderName: string) => Decoder<{
         [name: string]: a;
     }>;
     /**
@@ -116,34 +132,35 @@ export declare namespace JsonDecoder {
      *
      * @param decoder The decoder for the array element.
      */
-    const array: <a>(decoder: Decoder<a>, decoderName: string) => Decoder<a[]>;
+    export const array: <a>(decoder: Decoder<a>, decoderName: string) => Decoder<a[]>;
     /**
      * Decoder that only succeeds when json is strictly (===) `null`.
      * When succeeds it returns `defaultValue`.
      *
      * @param defaultValue The value returned when json is `null`.
      */
-    function isNull<a>(defaultValue: a): Decoder<a>;
+    export function isNull<a>(defaultValue: a): Decoder<a>;
     /**
      * Decoder that only succeeds when json is strictly (===) `undefined`.
      * When succeeds it returns `defaultValue`.
      *
      * @param defaultValue The value returned when json is `undefined`.
      */
-    function isUndefined<a>(defaultValue: a): Decoder<a>;
+    export function isUndefined<a>(defaultValue: a): Decoder<a>;
     /**
      * Decoder that always succeeds returning `value`.
      *
      * @param value The value returned.
      */
-    const constant: <a>(value: a) => Decoder<a>;
+    export const constant: <a>(value: a) => Decoder<a>;
     /**
      * Decoder that only succeeds when json is strictly (===) `value`.
      * When succeeds it returns `value`.
      *
      * @param value The value returned on success.
      */
-    function isExactly<a>(value: a): Decoder<a>;
+    export function isExactly<a>(value: a): Decoder<a>;
+    export {};
 }
 export declare namespace $JsonDecoderErrors {
     const primitiveError: (value: any, tag: string) => string;
@@ -155,4 +172,5 @@ export declare namespace $JsonDecoderErrors {
     const objectError: (decoderName: string, key: string, error: string) => string;
     const arrayError: (decoderName: string, index: number, error: string) => string;
     const objectJsonKeyError: (decoderName: string, key: string, jsonKey: string, error: string) => string;
+    const objectStrictUnknownKeyError: (decoderName: string, key: string) => string;
 }

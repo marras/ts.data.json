@@ -166,6 +166,41 @@ var JsonDecoder;
     }
     JsonDecoder.object = object;
     /**
+     * Decoder for objects that performs strict key checks.
+     * The decoder will fail if there are any extra keys in the provided object.
+     *
+     * @param decoders Key/value pairs of decoders for each object field.
+     * @param decoderName How to display the name of the object being decoded in errors.
+     */
+    function objectStrict(decoders, decoderName) {
+        return new Decoder(function (json) {
+            if (json !== null && typeof json === 'object') {
+                for (var key in json) {
+                    if (!decoders.hasOwnProperty(key)) {
+                        return result_1.err($JsonDecoderErrors.objectStrictUnknownKeyError(decoderName, key));
+                    }
+                }
+                var result = {};
+                for (var key in decoders) {
+                    if (decoders.hasOwnProperty(key)) {
+                        var r = decoders[key].decode(json[key]);
+                        if (r instanceof result_1.Ok) {
+                            result[key] = r.value;
+                        }
+                        else {
+                            return result_1.err($JsonDecoderErrors.objectError(decoderName, key, r.error));
+                        }
+                    }
+                }
+                return result_1.ok(result);
+            }
+            else {
+                return result_1.err($JsonDecoderErrors.primitiveError(json, decoderName));
+            }
+        });
+    }
+    JsonDecoder.objectStrict = objectStrict;
+    /**
      * Always succeeding decoder
      */
     JsonDecoder.succeed = new Decoder(function (json) {
@@ -199,6 +234,27 @@ var JsonDecoder;
         });
     }
     JsonDecoder.failover = failover;
+    /**
+     * Tries to decode with `decoder` and returns `error` on failure, but allows
+     * for `undefined` or `null` values to be present at the top level and returns
+     * an `undefined` if the value was `undefined` or `null`.
+     *
+     * @param decoder The actual decoder to use.
+     */
+    function optional(decoder) {
+        return new Decoder(function (json) {
+            if (json === undefined) {
+                return result_1.ok(undefined);
+            }
+            else if (json === null) {
+                return result_1.ok(undefined);
+            }
+            else {
+                return decoder.decode(json);
+            }
+        });
+    }
+    JsonDecoder.optional = optional;
     /**
      * Tries to decode the provided json value with any of the provided `decoders`.
      * If all provided `decoders` fail, this decoder fails.
@@ -378,5 +434,8 @@ var $JsonDecoderErrors;
     };
     $JsonDecoderErrors.objectJsonKeyError = function (decoderName, key, jsonKey, error) {
         return "<" + decoderName + "> decoder failed at key \"" + key + "\" (mapped from the JSON key \"" + jsonKey + "\") with error: " + error;
+    };
+    $JsonDecoderErrors.objectStrictUnknownKeyError = function (decoderName, key) {
+        return "Unknown key \"" + key + "\" found while processing strict <" + decoderName + "> decoder";
     };
 })($JsonDecoderErrors = exports.$JsonDecoderErrors || (exports.$JsonDecoderErrors = {}));

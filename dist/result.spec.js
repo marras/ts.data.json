@@ -32,8 +32,8 @@ describe('Result', function () {
         };
         var example = function (n) {
             return onlyEven(n)
-                .map(function (n) { return n * 2; })
-                .map(function (n) { return Number(n).toString(16); })
+                .map(function (n2) { return n2 * 2; })
+                .map(function (n2) { return Number(n2).toString(16); })
                 .map(function (hex) { return "#" + hex; });
         };
         expect(example(5)).to.deep.equal(result_1.err('not even'));

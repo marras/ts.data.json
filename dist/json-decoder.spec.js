@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -34,7 +35,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var json_decoder_1 = require("./json-decoder");
 var chai = require("chai");
@@ -124,6 +124,48 @@ describe('json-decoder', function () {
                     some: 'data'
                 }
             });
+        });
+    });
+    // optional
+    describe('optional', function () {
+        var userDecoder = json_decoder_1.JsonDecoder.object({
+            firstname: json_decoder_1.JsonDecoder.string,
+            lastname: json_decoder_1.JsonDecoder.string,
+            email: json_decoder_1.JsonDecoder.optional(json_decoder_1.JsonDecoder.string)
+        }, 'User');
+        var user = {
+            firstname: 'John',
+            lastname: 'Doe'
+        };
+        var userWithEmail = {
+            firstname: 'John',
+            lastname: 'Doe',
+            email: 'user@example.com'
+        };
+        var badUserData = {
+            firstname: 2,
+            lastname: 'Doe'
+        };
+        it('should decode a null value', function () {
+            expectOkWithValue(json_decoder_1.JsonDecoder.optional(userDecoder).decode(null), undefined);
+        });
+        it('should decode an undefined value', function () {
+            expectOkWithValue(json_decoder_1.JsonDecoder.optional(userDecoder).decode(undefined), undefined);
+        });
+        it('should decode the value when a valid value is provided', function () {
+            var expectedSuccessResult = userDecoder.decode(user);
+            var result = json_decoder_1.JsonDecoder.optional(userDecoder).decode(user);
+            expect(result).to.deep.equal(expectedSuccessResult);
+        });
+        it('should recursively decode optional values when a valid value is provided', function () {
+            var expectedSuccessResult = userDecoder.decode(userWithEmail);
+            var result = json_decoder_1.JsonDecoder.optional(userDecoder).decode(userWithEmail);
+            expect(result).to.deep.equal(expectedSuccessResult);
+        });
+        it('should fail with message from wrapped decoder when unable to decode object', function () {
+            var expectedErrorResult = userDecoder.decode(badUserData);
+            var result = json_decoder_1.JsonDecoder.optional(userDecoder).decode(badUserData);
+            expect(result).to.deep.equal(expectedErrorResult);
         });
     });
     // oneOf
@@ -240,6 +282,30 @@ describe('json-decoder', function () {
                     lName: 'Doe'
                 };
                 expectErrWithMsg(userDecoderWithKeyMap.decode(json), json_decoder_1.$JsonDecoderErrors.objectJsonKeyError('User', 'firstname', 'fName', json_decoder_1.$JsonDecoderErrors.primitiveError(5, 'string')));
+            });
+        });
+        describe('objectStrict', function () {
+            var strictUserDecoder = json_decoder_1.JsonDecoder.objectStrict({
+                firstname: json_decoder_1.JsonDecoder.string,
+                lastname: json_decoder_1.JsonDecoder.string
+            }, 'User');
+            it('should succeed when object has exactly all keys', function () {
+                var user = {
+                    firstname: 'John',
+                    lastname: 'Doe'
+                };
+                expectOkWithValue(strictUserDecoder.decode(user), {
+                    firstname: 'John',
+                    lastname: 'Doe'
+                });
+            });
+            it('should fail when object has unknown keys', function () {
+                var user = {
+                    firstname: 'John',
+                    lastname: 'Doe',
+                    email: 'doe@johndoe.com'
+                };
+                expectErrWithMsg(strictUserDecoder.decode(user), json_decoder_1.$JsonDecoderErrors.objectStrictUnknownKeyError('User', 'email'));
             });
         });
     });
@@ -395,7 +461,7 @@ describe('json-decoder', function () {
             });
         });
         it('should fail to decode a recursive tree data structure if any of its nodes fails', function () {
-            var json = {
+            var json2 = {
                 value: 'root',
                 children: [
                     { value: '1' },
@@ -409,7 +475,7 @@ describe('json-decoder', function () {
                     }
                 ]
             };
-            expectErr(treeDecoder.decode(json));
+            expectErr(treeDecoder.decode(json2));
         });
         it('should fail to decode a recursive tree data structure if the value is null or undefined', function () {
             expectErrWithMsg(treeDecoder.decode(null), json_decoder_1.$JsonDecoderErrors.primitiveError(null, 'Node<string>'));
@@ -554,7 +620,7 @@ describe('json-decoder', function () {
             });
         });
         describe('decodePromise', function () {
-            it('should resolve when decoding succeeds', function () { return __awaiter(_this, void 0, void 0, function () {
+            it('should resolve when decoding succeeds', function () { return __awaiter(void 0, void 0, void 0, function () {
                 var _a;
                 return __generator(this, function (_b) {
                     switch (_b.label) {
@@ -578,6 +644,17 @@ describe('json-decoder', function () {
                 var stringToDateDecoder = json_decoder_1.JsonDecoder.string.map(function (stringDate) { return new Date(stringDate); });
                 expect(stringToDateDecoder.decode('2018-12-21T18:22:25.490Z')
                     .value).to.be.an.instanceOf(Date);
+            });
+            it('should keep transforming based on the previous transformation value', function () {
+                var decoder = json_decoder_1.JsonDecoder.array(json_decoder_1.JsonDecoder.number, 'latLang')
+                    .map(function (arr) { return arr.slice(2); })
+                    .map(function (arr) { return arr.slice(2); })
+                    .map(function (arr) { return arr.slice(2); });
+                expectOkWithValue(decoder.decode([1, 2, 3, 4, 5, 6, 7, 8, 9]), [
+                    7,
+                    8,
+                    9
+                ]);
             });
         });
         describe('then', function () {
@@ -646,6 +723,31 @@ describe('json-decoder', function () {
                 };
                 expectErrWithMsg(shapeDecoder.decode(circle), "<Shape> does not support type \"circle\"");
             });
+            it('should chain decoders based on previous value', function () {
+                var hasLength = function (len) { return function (json) {
+                    return new json_decoder_1.JsonDecoder.Decoder(function (_) {
+                        if (json.length === len) {
+                            return result_1.ok(json);
+                        }
+                        else {
+                            return result_1.err("Array length is not " + len + ", is " + json.length);
+                        }
+                    });
+                }; };
+                var decoder = json_decoder_1.JsonDecoder.array(json_decoder_1.JsonDecoder.number, 'latLang')
+                    .map(function (arr) { return arr.slice(2); })
+                    .then(hasLength(8))
+                    .map(function (arr) { return arr.slice(2); })
+                    .then(hasLength(6))
+                    .map(function (arr) { return arr.slice(2); })
+                    .then(hasLength(4));
+                expectOkWithValue(decoder.decode([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]), [
+                    7,
+                    8,
+                    9,
+                    10
+                ]);
+            });
         });
     });
     describe('readme examples', function () {
@@ -653,7 +755,7 @@ describe('json-decoder', function () {
             firstname: json_decoder_1.JsonDecoder.string,
             lastname: json_decoder_1.JsonDecoder.string
         }, 'User');
-        it('should succeed', function () {
+        it('should succeed', function (done) {
             var jsonObjectOk = {
                 firstname: 'Damien',
                 lastname: 'Jurado'
@@ -661,13 +763,13 @@ describe('json-decoder', function () {
             userDecoder
                 .decodePromise(jsonObjectOk)
                 .then(function (user) {
-                console.log("User " + user.firstname + " " + user.lastname + " decoded successfully");
+                done();
             })
                 .catch(function (error) {
-                console.error(error);
+                done(error);
             });
         });
-        it('should fail', function () {
+        it('should fail', function (done) {
             var jsonObjectKo = {
                 firstname: 'Erik',
                 lastname: null
@@ -675,10 +777,10 @@ describe('json-decoder', function () {
             userDecoder
                 .decodePromise(jsonObjectKo)
                 .then(function (user) {
-                console.log('User decoded successfully');
+                done('Unexpectedly the User decoded successfully');
             })
                 .catch(function (error) {
-                console.error(error);
+                done();
             });
         });
     });
